@@ -29,13 +29,28 @@ io.on("connection", (socket) => {
 
     socket.on('disconnect', () => {
         Object.keys(rooms).forEach(roomId => {
+            // Check if the disconnected player was in this room
             if (rooms[roomId].players[socket.id]) {
-                delete rooms[roomId];
-                socket.to(roomId).emit('player-left');
+
+                // Remove the player from the room
+                delete rooms[roomId].players[socket.id];
+
+                // Notify other players that a player has left
+                socket.to(roomId).emit('player-left', socket.id);
+
+                // Check if the room is now empty
+                if (Object.keys(rooms[roomId].players).length === 0) {
+                    // If no players are left, delete the room
+                    delete rooms[roomId];
+                    console.log(`Room ${roomId} deleted due to no players left`);
+                } else {
+                    console.log(`Player ${socket.id} disconnected from room ${roomId}`);
+                }
             }
         });
     });
 });
+
 
 const port = process.env.PORT || 8080;
 httpServer.listen(port, () => console.log(`Listening on port ${port}`));

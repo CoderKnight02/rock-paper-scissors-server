@@ -143,13 +143,21 @@ const roomHandler = (io, socket, rooms) => {
   socket.on('leave-room', (roomId) => {
     // Check if the room exists and the player is in the room
     if (rooms[roomId] && rooms[roomId].players[socket.id]) {
-      
-      console.log(`Room ${roomId} deleted`);
-      socket.to(roomId).emit('player-left');
+
       // Remove the player from the room
       delete rooms[roomId].players[socket.id];
-      delete rooms[roomId];
 
+      // Notify other players in the room that this player has left
+      socket.to(roomId).emit('player-left', socket.id);
+
+      // Check if there are no more players left in the room
+      if (Object.keys(rooms[roomId].players).length === 0) {
+        // If no players are left, delete the room
+        delete rooms[roomId];
+        console.log(`Room ${roomId} deleted`);
+      } else {
+        console.log(`Player ${socket.id} left room ${roomId}`);
+      }
     }
   });
 

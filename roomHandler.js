@@ -144,29 +144,21 @@ const roomHandler = (io, socket, rooms) => {
     // Check if the room exists and the player is in the room
     if (rooms[roomId] && rooms[roomId].players[socket.id]) {
 
-        // Remove the player from the room
-        delete rooms[roomId].players[socket.id];
+      // Remove the player from the room
+      delete rooms[roomId].players[socket.id];
+      
+      // Notify other players in the room that this player has left
+      socket.to(roomId).emit('player-left', socket.id);
+      socket.leave(roomId);
 
-        // Notify other players in the room that this player has left
-        socket.to(roomId).emit('player-left', socket.id);
-
-        // Check if there are no more players left in the room
-        if (Object.keys(rooms[roomId].players).length === 0) {
-            // If no players are left, delete the room
-            delete rooms[roomId];
-            console.log(`Room ${roomId} deleted`);
-        } else {
-            // Reset the scores of all remaining players to 0
-            Object.keys(rooms[roomId].players).forEach(playerId => {
-                rooms[roomId].players[playerId].score = 0;
-                rooms[roomId].players[playerId].selection = 0;
-            });
-            console.log(`Scores reset for remaining players in room ${roomId}`);
-            // Optionally notify remaining players that scores have been reset
-            socket.to(roomId).emit('scores-reset');
-        }
+      // Check if there are no more players left in the room
+      if (Object.keys(rooms[roomId].players).length === 0) {
+        // If no players are left, delete the room
+        delete rooms[roomId];
+        console.log(`Room ${roomId} deleted`);
+      }
     }
-});
+  });
 
 
 };

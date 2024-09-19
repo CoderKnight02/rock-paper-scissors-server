@@ -34,10 +34,11 @@ io.on("connection", (socket) => {
 
                 // Remove the player from the room
                 delete rooms[roomId].players[socket.id];
-
+                
                 // Notify other players that a player has left
                 socket.to(roomId).emit('player-left', socket.id);
 
+                socket.leave(roomId);
                 // Check if the room is now empty
                 if (Object.keys(rooms[roomId].players).length === 0) {
                     // If no players are left, delete the room

@@ -14,7 +14,7 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
     cors: {
-        origin: ["http://localhost:3000", "https://coderknight02.github.io/rock-paper-scissors"],
+        origin: ["http://localhost:3000", "https://coderknight02.github.io"],
         methods: ['GET', 'POST']
     },
 });
